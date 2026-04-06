@@ -1,0 +1,66 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Riwayat Data') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-emerald-700 text-white">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase">ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase">Waktu</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase">Suhu Udara (°C)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase">Kelembaban (%)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase">Suhu Air (°C)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase">Daya (Watt)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase">Tegangan PLN (V)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse($data as $row)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $row->id }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ date('d/m H:i:s', strtotime($row->timestamp)) }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-red-600 font-bold">{{ number_format($row->temp_avg, 1) }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-blue-600 font-bold">{{ number_format($row->hum_avg, 1) }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-600">
+                                        {{ number_format($row->temp_air, 2) }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-yellow-600 font-bold">{{ number_format($row->power, 1) }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="font-bold {{ $row->pln_voltage < 100 ? 'text-red-600' : 'text-green-600' }}">
+                                            {{ number_format($row->pln_voltage, 1) }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">Tidak ada data history</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-4">
+                        {{ $data->links() }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>

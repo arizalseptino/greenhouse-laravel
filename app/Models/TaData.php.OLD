@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class TaData extends Model
+{
+    protected $table = 'ta_data';
+    
+    // Kolom yang boleh diisi mass assignment
+    protected $fillable = [
+        'temp_avg', 'hum_avg', 'temp1', 'temp2', 'temp3',
+        'hum1', 'hum2', 'hum3', 'temp_air',
+        'voltage', 'current', 'power', 'energy', 'pln_voltage',
+        'fan_status', 'warning_fan', 'warning_pln'
+    ];
+    
+    // Cast tipe data
+    protected $casts = [
+        'temp_avg' => 'float',
+        'hum_avg' => 'float',
+        'temp1' => 'float',
+        'temp2' => 'float',
+        'temp3' => 'float',
+        'temp_air' => 'float',
+        'voltage' => 'float',
+        'current' => 'float',
+        'power' => 'float',
+        'energy' => 'float',
+        'pln_voltage' => 'float',
+        'fan_status' => 'integer',
+        'warning_fan' => 'integer',
+        'warning_pln' => 'integer',
+    ];
+    
+    // Laravel akan otomatis pakai created_at & updated_at
+    // Tapi di database lama pakai 'timestamp', jadi kita override
+    const CREATED_AT = 'timestamp';
+    const UPDATED_AT = null; // Karena di database lama tidak ada updated_at
+}

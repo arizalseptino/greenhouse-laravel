@@ -1,0 +1,42 @@
+Yang Harus Jalan:
+1. XAMPP MySQL
+
+Buka XAMPP Control Panel
+Pastikan MySQL statusnya Running (hijau)
+
+2. Terminal 1: Vite Dev Server
+
+cd C:\xampp\htdocs\greenhouse-laravel
+npm run dev
+
+Biarkan jalan (jangan ditutup).
+
+3. Terminal 2: Laravel Development Server
+
+cd C:\xampp\htdocs\greenhouse-laravel
+php artisan serve --host=0.0.0.0 --port=8000
+
+
+Biarkan jalan (jangan ditutup).
+
+
+Buka browser, akses: http://127.0.0.1:8000
+http://10.205.223.246:8000
+http://192.168.1.17:8000
+
+
+nanti kalau web udah selesai fiks lakukan:
+
+Deployment ke Production (XAMPP) 🚀
+
+ Copy project ke C:\xampp\htdocs\
+ Setup .htaccess untuk remove /public
+ Update ESP32 URL ke production
+ Test akses dari perangkat lain (HP/tablet)
+
+
+ Arizal
+ arizalseptino@apps.ipb.ac.id
+ arizal123
+
+

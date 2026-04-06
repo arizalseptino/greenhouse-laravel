@@ -1,0 +1,465 @@
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Dashboard Monitoring Greenhouse') }}
+            </h2>
+            <a href="{{ route('download.csv') }}" 
+               class="bg-gray-800 hover:bg-gray-900 text-white font-medium py-2 px-4 rounded-lg transition duration-150">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Download CSV
+            </a>
+        </div>
+    </x-slot>
+
+    <div class="py-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            
+            <!-- STATUS SISTEM -->
+            @if($is_offline)
+            <div class="bg-white border-l-4 border-red-500 p-4 rounded-lg shadow-sm">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="font-medium text-red-800">Sistem Offline</span>
+                    <span class="ml-2 text-sm text-red-600">Data terakhir: {{ $data ? $data->formatted_timestamp : '-' }}</span>
+                </div>
+            </div>
+            @else
+            <div class="bg-white border-l-4 border-green-500 p-4 rounded-lg shadow-sm">
+                <div class="flex items-center">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                    <span class="font-medium text-gray-800">Sistem Online</span>
+                    <span class="ml-2 text-sm text-gray-600">Update: {{ $data ? $data->formatted_timestamp : '-' }}</span>
+                </div>
+            </div>
+            @endif
+
+            <!-- KARTU DATA REAL-TIME -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Suhu Udara -->
+                <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600 mb-1">Suhu Udara</p>
+                                <p class="text-3xl font-bold text-gray-900" id="suhu-realtime">
+                                    {{ $data ? number_format($data->suhu_udara, 1) : '--' }}
+                                </p>
+                                <p class="text-sm text-gray-500 mt-1">°Celsius</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg">
+                                <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kelembaban Udara -->
+                <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600 mb-1">Kelembaban Udara</p>
+                                <p class="text-3xl font-bold text-gray-900" id="rh-realtime">
+                                    {{ $data ? number_format($data->kelembaban_udara, 1) : '--' }}
+                                </p>
+                                <p class="text-sm text-gray-500 mt-1">Persen (%)</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg">
+                                <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kelembaban Tanah -->
+                <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600 mb-1">Kelembaban Tanah</p>
+                                <p class="text-3xl font-bold text-gray-900" id="soil-realtime">
+                                    {{ $data ? number_format($data->kelembaban_tanah, 1) : '--' }}
+                                </p>
+                                <p class="text-sm text-gray-500 mt-1">Persen (%)
+                                    <span class="text-xs ml-1">• Analog: <span id="soil-analog-realtime">{{ $data ? $data->soil_analog : '--' }}</span></span>
+                                </p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg">
+                                <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATISTIK 24 JAM -->
+            @if($stats24h)
+            <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+                <div class="p-6 border-b border-gray-100">
+                    <h5 class="text-lg font-semibold text-gray-800">Statistik 24 Jam Terakhir</h5>
+                    <p class="text-sm text-gray-500 mt-1">{{ $stats24h['count'] }} data tercatat</p>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Suhu -->
+                        <div>
+                            <h6 class="font-semibold text-gray-700 mb-4 pb-2 border-b">Suhu Udara</h6>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Rata-rata</span>
+                                    <span class="font-semibold text-gray-900">{{ $stats24h['suhu_avg'] }}°C</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Minimum</span>
+                                    <span class="text-gray-700">{{ $stats24h['suhu_min'] }}°C</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Maximum</span>
+                                    <span class="text-gray-700">{{ $stats24h['suhu_max'] }}°C</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Kelembaban Tanah -->
+                        <div>
+                            <h6 class="font-semibold text-gray-700 mb-4 pb-2 border-b">Kelembaban Tanah</h6>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Rata-rata</span>
+                                    <span class="font-semibold text-gray-900">{{ $stats24h['kelembaban_tanah_avg'] }}%</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Minimum</span>
+                                    <span class="text-gray-700">{{ $stats24h['kelembaban_tanah_min'] }}%</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Maximum</span>
+                                    <span class="text-gray-700">{{ $stats24h['kelembaban_tanah_max'] }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- GRAFIK TIME SERIES -->
+            <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+                <div class="p-6 border-b border-gray-100">
+                    <h5 class="text-lg font-semibold text-gray-800">Grafik Time Series</h5>
+                    <p class="text-sm text-gray-500 mt-1">50 data terakhir</p>
+                </div>
+                <div class="p-6">
+                    <canvas id="timeSeriesChart" height="80"></canvas>
+                </div>
+            </div>
+
+            <!-- GRAFIK SCATTER (KORELASI) -->
+            <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+                <div class="p-6 border-b border-gray-100">
+                    <h5 class="text-lg font-semibold text-gray-800">Scatter Plot: Suhu Udara vs Kelembaban Tanah</h5>
+                    <p class="text-sm text-gray-500 mt-1">Analisis korelasi untuk penelitian</p>
+                </div>
+                <div class="p-6">
+                    <canvas id="scatterChart" height="80"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Data dari Laravel
+        const chartData = @json($chartData);
+
+        // ========================================
+        // GRAFIK TIME SERIES - Warna Standar Penelitian
+        // ========================================
+        const timeSeriesCtx = document.getElementById('timeSeriesChart').getContext('2d');
+        const timeSeriesChart = new Chart(timeSeriesCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.map(d => {
+                    const date = new Date(d.timestamp);
+                    return date.toLocaleDateString('id-ID', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                }),
+                datasets: [
+                    {
+                        label: 'Suhu Udara (°C)',
+                        data: chartData.map(d => d.suhu_udara),
+                        borderColor: 'rgb(220, 38, 38)',      // Merah untuk suhu
+                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        tension: 0.3,
+                        yAxisID: 'y',
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                    },
+                    {
+                        label: 'Kelembaban Tanah (%)',
+                        data: chartData.map(d => d.kelembaban_tanah),
+                        borderColor: 'rgb(37, 99, 235)',      // Biru untuk kelembaban
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        tension: 0.3,
+                        yAxisID: 'y1',
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed.y.toFixed(1);
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Suhu Udara (°C)',
+                            color: 'rgb(220, 38, 38)',
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        },
+                        ticks: {
+                            color: 'rgb(220, 38, 38)',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Kelembaban Tanah (%)',
+                            color: 'rgb(37, 99, 235)',
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        },
+                        ticks: {
+                            color: 'rgb(37, 99, 235)',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            },
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                }
+            }
+        });
+
+        // ========================================
+        // SCATTER PLOT (KORELASI) - Standar Penelitian
+        // ========================================
+        const scatterCtx = document.getElementById('scatterChart').getContext('2d');
+        const scatterChart = new Chart(scatterCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Data Pengamatan',
+                    data: chartData.map(d => ({
+                        x: d.suhu_udara,
+                        y: d.kelembaban_tanah
+                    })),
+                    backgroundColor: 'rgba(37, 99, 235, 0.6)',
+                    borderColor: 'rgb(37, 99, 235)',
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointBorderWidth: 2,
+                    pointBorderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return `Suhu: ${context.parsed.x.toFixed(1)}°C, Kelembaban: ${context.parsed.y.toFixed(1)}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        title: {
+                            display: true,
+                            text: 'Suhu Udara (°C)',
+                            color: 'rgb(220, 38, 38)',
+                            font: {
+                                size: 14,
+                                weight: '600'
+                            }
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(0) + '°C';
+                            },
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.08)',
+                            drawBorder: false
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Kelembaban Tanah (%)',
+                            color: 'rgb(37, 99, 235)',
+                            font: {
+                                size: 14,
+                                weight: '600'
+                            }
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(0) + '%';
+                            },
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.08)',
+                            drawBorder: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // ========================================
+        // AUTO-REFRESH DATA (setiap 10 detik)
+        // ========================================
+        setInterval(async function() {
+            try {
+                const response = await fetch('/api/sensor/latest');
+                const result = await response.json();
+                
+                if (result.status === 'success' && result.data) {
+                    const data = result.data;
+                    
+                    // Update nilai real-time
+                    document.getElementById('suhu-realtime').textContent = data.suhu_udara;
+                    document.getElementById('rh-realtime').textContent = data.kelembaban_udara;
+                    document.getElementById('soil-realtime').textContent = data.kelembaban_tanah;
+                    document.getElementById('soil-analog-realtime').textContent = data.soil_analog;
+                }
+            } catch (error) {
+                console.error('Error fetching latest data:', error);
+            }
+        }, 10000); // 10 detik
+
+    </script>
+    @endpush
+</x-app-layout>

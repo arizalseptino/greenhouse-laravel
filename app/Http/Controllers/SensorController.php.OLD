@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\TaData;
+use App\Models\Actuator;
+use App\Models\Setpoint;
+use Illuminate\Http\Request;
+
+class SensorController extends Controller
+{
+    public function store(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'suhu_avg' => 'required|numeric',
+                'hum_avg' => 'required|numeric',
+                'temp1' => 'required|numeric',
+                'temp2' => 'required|numeric',
+                'temp3' => 'required|numeric',
+                'suhu_air' => 'required|numeric',
+                'voltage' => 'required|numeric',
+                'current' => 'required|numeric',
+                'power' => 'required|numeric',
+                'energy' => 'required|numeric',
+                'pln_voltage' => 'required|numeric',
+                'fan' => 'required|integer',
+                'warning_fan' => 'required|integer',
+                'warning_pln' => 'required|integer',
+            ]);
+            
+            // Update actuator status
+            Actuator::updateOrCreate(
+                ['id' => 1],
+                ['fan_status' => $validated['fan']]
+            );
+            
+            // Insert data sensor
+            $taData = TaData::create([
+                'temp_avg' => $validated['suhu_avg'],
+                'hum_avg' => $validated['hum_avg'],
+                'temp1' => $validated['temp1'],
+                'temp2' => $validated['temp2'],
+                'temp3' => $validated['temp3'],
+                'temp_air' => $validated['suhu_air'],
+                'voltage' => $validated['voltage'],
+                'current' => $validated['current'],
+                'power' => $validated['power'],
+                'energy' => $validated['energy'],
+                'pln_voltage' => $validated['pln_voltage'],
+                'fan_status' => $validated['fan'],
+                'warning_fan' => $validated['warning_fan'],
+                'warning_pln' => $validated['warning_pln'],
+            ]);
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data saved successfully',
+                'data_id' => $taData->id,
+                'fan_status' => $validated['fan']
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    public function getSetpoints()
+    {
+        $setpoint = Setpoint::first();
+        
+        return response()->json([
+            'status' => 'success',
+            'suhu_setpoint' => $setpoint->suhu_setpoint ?? 30.0,
+            'kelembaban_setpoint' => $setpoint->kelembaban_setpoint ?? 60.0
+        ]);
+    }
+}

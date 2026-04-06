@@ -1,0 +1,103 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\TaData;
+use App\Models\Actuator;
+use App\Models\Setpoint;
+use Illuminate\Http\Request;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        // Data terakhir
+        $data = TaData::latest('timestamp')->first();
+        
+        // Cek offline (> 60 detik)
+        $is_offline = false;
+        if ($data) {
+            $last_update = strtotime($data->timestamp);
+            if ((time() - $last_update) > 60) {
+                $is_offline = true;
+            }
+        }
+        
+        // Data grafik (20 terakhir, dibalik urutannya)
+        $chartData = TaData::latest('timestamp')->limit(20)->get()->reverse();
+        
+        // Status aktuator & setpoint
+        $actuator = Actuator::first();
+        $setpoint = Setpoint::first();
+        
+        // History (10 terakhir)
+        $history = TaData::latest('timestamp')->limit(10)->get();
+        
+        return view('dashboard', compact(
+            'data', 'is_offline', 'chartData', 
+            'actuator', 'setpoint', 'history'
+        ));
+    }
+    
+    public function downloadCsv()
+    {
+        $filename = 'Data_Greenhouse_TA_' . date('Ymd_His') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+        
+        $callback = function() {
+            $file = fopen('php://output', 'w');
+            
+            // BOM untuk Excel UTF-8
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Header CSV
+            fputcsv($file, [
+                'ID', 'Timestamp', 'Suhu Udara Avg (°C)', 
+                'Kelembaban Avg (%)', 'Suhu Air (°C)', 
+                'Daya (Watt)', 'Tegangan PZEM (V)', 
+                'Arus Kipas (A)', 'Tegangan PLN (V)', 'Status Kipas'
+            ]);
+            
+            // Data
+            TaData::orderBy('id', 'desc')->chunk(100, function($data) use ($file) {
+                foreach ($data as $row) {
+                    fputcsv($file, [
+                        $row->id,
+                        $row->timestamp,
+                        $row->temp_avg,
+                        $row->hum_avg,
+                        $row->temp_air,
+                        $row->power,
+                        $row->voltage,
+                        $row->current,
+                        $row->pln_voltage,
+                        $row->fan_status == 1 ? 'ON' : 'OFF'
+                    ]);
+                }
+            });
+            
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function history()
+    {
+        $data = TaData::latest('timestamp')->paginate(100);
+        
+        return view('history', compact('data'));
+    }
+
+    public function kontrol()
+    {
+        $actuator = Actuator::first();
+        $setpoint = Setpoint::first();
+        
+        return view('kontrol', compact('actuator', 'setpoint'));
+    }
+}
