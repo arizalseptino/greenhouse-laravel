@@ -35,11 +35,13 @@ class SensorController extends Controller
             $kelembaban_tanah = max(0, min(100, $kelembaban_tanah));
             
             // Insert data sensor
+
             $sensorData = SensorData::create([
                 'suhu_udara' => $validated['suhu_udara'],
                 'kelembaban_udara' => $validated['kelembaban_udara'],
                 'soil_analog' => $validated['soil_analog'],
                 'kelembaban_tanah' => $kelembaban_tanah,
+                'timestamp' => now()->setTimezone('Asia/Jakarta'),
             ]);
             
             return response()->json([
