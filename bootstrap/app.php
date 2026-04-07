@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Trust all proxies (for Railway HTTPS)
+        $middleware->trustProxies(at: '*');
+
         // Exclude API routes dari CSRF protection
         $middleware->validateCsrfTokens(except: [
             'api/*',
