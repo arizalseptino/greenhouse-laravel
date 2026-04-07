@@ -1,18 +1,10 @@
 {
-    "version": 2,
-    "framework": "laravel",
-    "rewrites": [
-        { "source": "/(.*)", "destination": "/api/index.php" }
-    ],
-    "env": {
-        "APP_ENV": "production",
-        "APP_DEBUG": "true",
-        "APP_URL": "https://greenhouse-vokasi.vercel.app",
-        "DB_CONNECTION": "mysql",
-        "DB_HOST": "5p4e38.h.filess.io",
-        "DB_PORT": "3307",
-        "DB_DATABASE": "greenhouse_vokasiipb_poledoneno",
-        "DB_USERNAME": "ISI_USER_KAMU",
-        "DB_PASSWORD": "ISI_PASSWORD_KAMU"
-    }
+  "version": 2,
+  "framework": null,
+  "functions": {
+    "api/index.php": { "runtime": "vercel-php@0.7.1" }
+  },
+  "routes": [
+    { "src": "/(.*)", "dest": "/api/index.php" }
+  ]
 }
