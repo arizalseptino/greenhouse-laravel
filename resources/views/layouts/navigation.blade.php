@@ -37,6 +37,7 @@
                                 @if(Auth::user()->photo)
                                     <img src="{{ asset('uploads/' . Auth::user()->photo) }}" 
                                          class="w-8 h-8 rounded-full object-cover mr-2 border-2 border-gray-200">
+                                    <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Foto Profil" width="120">
                                 @else
                                     <div class="w-8 h-8 rounded-full mr-2 bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-white font-bold text-sm">
                                         {{ substr(Auth::user()->name, 0, 1) }}
