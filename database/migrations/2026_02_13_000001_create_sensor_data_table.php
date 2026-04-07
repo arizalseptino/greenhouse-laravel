@@ -24,11 +24,10 @@ return new class extends Migration
             $table->integer('soil_analog')->comment('Nilai analog sensor (0-4095)');
             $table->float('kelembaban_tanah')->comment('Kelembaban tanah setelah kalibrasi (%)');
             
-            // Timestamp
-            $table->timestamp('timestamp')->useCurrent()->comment('Waktu pencatatan data');
             
+            $table->dateTime('timestamp')->index();
             // Index untuk performa query
-            $table->index('timestamp');
+            $table->timestamps();
         });
     }
 
