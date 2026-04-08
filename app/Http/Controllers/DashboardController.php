@@ -45,13 +45,21 @@ class DashboardController extends Controller
     /**
      * Halaman history dengan pagination
      */
-    public function history()
+
+    public function history(Request $request)
     {
-        // Menampilkan 100 data per halaman
-        $data = SensorData::latest('timestamp')->paginate(100);
+        $query = SensorData::query();
+
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->where('timestamp', 'like', "%{$search}%")
+                ->orWhere('id', 'like', "%{$search}%");
+        }
+
+        $data = $query->latest('timestamp')->paginate(100);
+        
         return view('history', compact('data'));
     }
-    
     /**
      * Download data sebagai CSV untuk diolah di Excel (sesuai kebutuhan Bab 3 & 4)
      */
