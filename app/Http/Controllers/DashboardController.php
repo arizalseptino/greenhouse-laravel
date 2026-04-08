@@ -4,33 +4,34 @@ namespace App\Http\Controllers;
 
 use App\Models\SensorData;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Data terakhir
+        // 1. Ambil data paling baru untuk status real-time
         $data = SensorData::latest('timestamp')->first();
         
-        // Cek sistem offline (> 6 menit = 360 detik)
-        // Interval ESP32: 5 menit (300 detik)
-        // Toleransi: +1 menit untuk delay network
+        // 2. Cek apakah sistem sedang offline
+        // Interval ESP32: 5 menit (300 detik). Toleransi: +1 menit (total 360 detik)
         $is_offline = false;
         if ($data) {
-            $last_update = strtotime($data->timestamp);
-            if ((time() - $last_update) > 360) {  // 6 menit
+            $last_update = Carbon::parse($data->timestamp);
+            if ($last_update->diffInSeconds(now()) > 360) {
                 $is_offline = true;
             }
         }
         
-        // Data untuk grafik (50 data terakhir, dibalik urutannya agar kronologis)
+        // 3. Data untuk grafik (50 data terakhir untuk Dual-Axis & Scatter Plot)
+        // Kita ambil 50 data terbaru, lalu diurutkan dari yang terlama ke terbaru
         $chartData = SensorData::latest('timestamp')
             ->limit(50)
             ->get()
             ->reverse()
-            ->values(); // Reset array keys
+            ->values(); 
         
-        // Statistik 24 jam terakhir
+        // 4. Statistik 24 jam terakhir
         $stats24h = $this->getStatistics24Hours();
         
         return view('dashboard', compact(
@@ -46,17 +47,17 @@ class DashboardController extends Controller
      */
     public function history()
     {
+        // Menampilkan 100 data per halaman
         $data = SensorData::latest('timestamp')->paginate(100);
-        
         return view('history', compact('data'));
     }
     
     /**
-     * Download data sebagai CSV
+     * Download data sebagai CSV untuk diolah di Excel (sesuai kebutuhan Bab 3 & 4)
      */
     public function downloadCsv()
     {
-        $filename = 'Sensor_Data_' . date('Ymd_His') . '.csv';
+        $filename = 'Greenhouse_Data_' . date('Ymd_His') . '.csv';
         
         $headers = [
             'Content-Type' => 'text/csv; charset=utf-8',
@@ -66,22 +67,22 @@ class DashboardController extends Controller
         $callback = function() {
             $file = fopen('php://output', 'w');
             
-            // BOM untuk Excel UTF-8
+            // Tambahkan BOM agar Excel tidak berantakan saat baca karakter spesial/UTF-8
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
             
-            // Header CSV
+            // Header CSV (sesuai format skripsi)
             fputcsv($file, [
                 'ID',
-                'Timestamp',
+                'Waktu (WIB)',
                 'Suhu Udara (°C)',
                 'Kelembaban Udara (%)',
                 'Soil Analog (RAW)',
                 'Kelembaban Tanah (%)'
             ]);
             
-            // Data (chunk untuk efisiensi memory)
-            SensorData::orderBy('id', 'desc')->chunk(1000, function($data) use ($file) {
-                foreach ($data as $row) {
+            // Gunakan chunk agar server tidak crash saat data sudah mencapai ribuan
+            SensorData::orderBy('timestamp', 'desc')->chunk(1000, function($records) use ($file) {
+                foreach ($records as $row) {
                     fputcsv($file, [
                         $row->id,
                         $row->timestamp,
@@ -100,10 +101,11 @@ class DashboardController extends Controller
     }
     
     /**
-     * Get statistik 24 jam terakhir
+     * Menghitung statistik 24 jam terakhir dari database
      */
     private function getStatistics24Hours()
     {
+        // Ambil data dari 24 jam yang lalu berdasarkan kolom timestamp
         $data24h = SensorData::where('timestamp', '>=', now()->subHours(24))->get();
         
         if ($data24h->isEmpty()) {
