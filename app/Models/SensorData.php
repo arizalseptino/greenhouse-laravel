@@ -12,7 +12,8 @@ class SensorData extends Model
         'suhu_udara',
         'kelembaban_udara',
         'soil_analog',
-        'kelembaban_tanah'
+        'kelembaban_tanah',
+        'timestamp',
     ];
     
     protected $casts = [
