@@ -39,9 +39,9 @@
 
         <!-- Text -->
         <div class="absolute bottom-10 left-10 text-white">
-            <h2 class="text-3xl font-bold">Greenhouse Monitoring</h2>
+            <h2 class="text-3xl font-bold">Greenhouse Sekolah Vokasi IPB</h2>
             <p class="text-sm opacity-90">
-                Sistem Monitoring & Kontrol Iklim Tanaman
+                Sistem Monitoring Suhu, Kelembapan Udara, dan Kelembapan Media Tanam
             </p>
         </div>
     </div>

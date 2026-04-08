@@ -7,7 +7,7 @@
                  class="h-20 mx-auto mb-4">
         </a>
         <h2 class="text-2xl font-bold text-gray-800">Daftar Akun Baru</h2>
-        <p class="text-gray-600 text-sm mt-1">Greenhouse Monitoring System</p>
+        <p class="text-gray-600 text-sm mt-1">Greenhouse Monitoring</p>
     </div>
 
     <form method="POST" action="{{ route('register') }}">

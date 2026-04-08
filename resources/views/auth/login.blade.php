@@ -7,7 +7,7 @@
                  class="h-20 mx-auto mb-4">
         </a>
         <h2 class="text-2xl font-bold text-gray-800">Greenhouse Monitoring</h2>
-        <p class="text-gray-600 text-sm mt-1">IPB University</p>
+        <p class="text-gray-600 text-sm mt-1">Sekolah Vokasi IPB University</p>
     </div>
 
     <!-- Session Status -->
