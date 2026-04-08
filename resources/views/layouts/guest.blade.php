@@ -29,7 +29,7 @@
     <!-- KANAN: FOTO GREENHOUSE -->
     <div class="hidden md:block relative">
         <img
-            src="{{ asset('assets/img/bayam.jpg') }}"
+            src="{{ asset('assets/img/melon.jpg') }}"
             alt="Greenhouse"
             class="absolute inset-0 w-full h-full object-cover"
         >
