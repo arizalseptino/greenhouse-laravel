@@ -234,8 +234,9 @@
             type: 'line',
             data: {
                 labels: rawData.map(d => {
-                    const date = new Date(d.timestamp);
-                    return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    const date = new Date(d.jam);
+                    return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) 
+                        + ' ' + date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 }),
                 datasets: [
                     {

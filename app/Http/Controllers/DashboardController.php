@@ -22,15 +22,33 @@ class DashboardController extends Controller
                 $is_offline = true;
             }
         }
+  
         
-        // 3. Data untuk grafik (50 data terakhir untuk Dual-Axis & Scatter Plot)
-        // Kita ambil 50 data terbaru, lalu diurutkan dari yang terlama ke terbaru
-        $chartData = SensorData::latest('timestamp')
-            ->limit(50)
-            ->get()
-            ->reverse()
-            ->values(); 
-        
+        // 3. Data untuk grafik - agregasi rata-rata per jam, filter error & stagnan
+        $rawHourly = SensorData::selectRaw("
+                DATE_FORMAT(timestamp, '%Y-%m-%d %H:00:00') as jam,
+                AVG(suhu_udara) as suhu_udara,
+                AVG(kelembaban_udara) as kelembaban_udara,
+                AVG(kelembaban_tanah) as kelembaban_tanah,
+                COUNT(*) as n_data,
+                STDDEV(suhu_udara) as std_suhu,
+                STDDEV(kelembaban_udara) as std_rh
+            ")
+            ->where('soil_analog', '!=', 4095)
+            ->where('kelembaban_tanah', '>', 0)
+            ->groupBy('jam')
+            ->having('n_data', '>=', 3)
+            ->orderBy('jam', 'asc')
+            ->get();
+
+        // Filter stagnan: buang jam yang std_suhu = 0 DAN std_rh = 0
+        // (artinya semua data dalam jam itu nilai identik = sensor freeze)
+        $chartData = $rawHourly->filter(function($row) {
+            $stdSuhu = (float) $row->std_suhu;
+            $stdRh   = (float) $row->std_rh;
+            // Kalau std keduanya 0.00 persis, itu stagnan
+            return !($stdSuhu < 0.01 && $stdRh < 0.01);
+        })->values();
         // 4. Statistik 24 jam terakhir
         $stats24h = $this->getStatistics24Hours();
         
