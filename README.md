@@ -15,11 +15,11 @@ ESP32 Hardware (DHT22 + Soil Moisture Sensor)
 
 ## ⚡ Engineering Highlights & System Metrics
 
-- **Ingestion Latency & Reliability:** Tested with 100% request delivery success rate and average API response time of ~1.0 second on Railway cloud deployment[cite: 3].
-- **Hardware Fault Tolerance:** Integrated 5V Mini UPS backup system providing **13 hours 42 minutes** of continuous operation during main power outages[cite: 3].
-- **Offline Data Buffering:** MicroSD hybrid storage architecture capable of buffering telemetric records locally during network downtime and automatically syncing when online[cite: 3].
-- **Data Quality at Ingestion:** Embedded filter logic to detect and discard hardware ADC saturation anomalies (e.g., raw sensor disconnect value 4095 and uncalibrated 0% readings)[cite: 3].
-- **Firmware Mathematical Calibration:** Sensor signal processing implemented on ESP32 using linear regression conversion (R² = 0.9897) for volumetric soil moisture percentage[cite: 3].
+- **Ingestion Latency & Reliability:** Tested with 100% request delivery success rate and average API response time of ~1.0 second on Railway cloud deployment.
+- **Hardware Fault Tolerance:** Integrated 5V Mini UPS backup system providing **13 hours 42 minutes** of continuous operation during main power outages.
+- **Offline Data Buffering:** MicroSD hybrid storage architecture capable of buffering telemetric records locally during network downtime and automatically syncing when online.
+- **Data Quality at Ingestion:** Embedded filter logic to detect and discard hardware ADC saturation anomalies (e.g., raw sensor disconnect value 4095 and uncalibrated 0% readings).
+- **Firmware Mathematical Calibration:** Sensor signal processing implemented on ESP32 using linear regression conversion (R² = 0.9897) for volumetric soil moisture percentage.
 
 ---
 
